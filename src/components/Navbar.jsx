@@ -1,3 +1,6 @@
+// State: isMobileMenuOpen (boolean)
+// Purpose: Track whether the mobile navigation menu is open or closed
+
 import { useState } from 'react';
 
 function Navbar() {
