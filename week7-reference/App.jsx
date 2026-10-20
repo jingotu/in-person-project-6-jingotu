@@ -1,201 +1,187 @@
-// Week 7 solution: Interactive Portfolio in React (one monolithic component)
-// The finished In-Person Project 5: the week 6 vanilla JavaScript portfolio migrated to React
-// NOTE: everything is in ONE component. In-Person Project 6 (week 8) breaks it into smaller pieces.
+// Week 7: Migrating Your Interactive Portfolio to React
+// This starter file guides you through migrating your Week 6 vanilla JavaScript portfolio to React
 
 import './App.css'
 
 function App() {
   // ============================================
-  // EVENT HANDLER FUNCTIONS
+  // PART 1: EVENT HANDLER FUNCTIONS
   // ============================================
-  // All week 6 functionality converted to React event handlers
-  
-  // Smooth scroll navigation
-  const handleNavClick = (e) => {
-    e.preventDefault()
-    const targetId = e.target.getAttribute('href')
-    const targetSection = document.querySelector(targetId)
-    
+  // TODO: Move your Week 6 event handler functions here
+  // In Week 6, you had functions like:
+  // - handleNavClick (for smooth scroll)
+  // - filterProjects (for project filtering)
+  // - handleFormSubmit (for form validation)
+  //
+  // HINT: These will be regular JavaScript functions defined inside App component
+  // Example from Week 6:
+  //   const filterProjects = (category) => {
+  //     // Your filtering logic here
+  //   }
+
+  // TODO: Add smooth scroll handler
+  // Replace: navLinks.forEach(link => link.addEventListener('click', ...))
+  // With: const handleNavClick = (e) => { ... }
+  function handleNavClick(event) {
+    console.log('Navigation clicked');
+    event.preventDefault();
+
+    const targetId = event.currentTarget.getAttribute('href');
+    const targetSection = document.querySelector(targetId);
+
     if (targetSection) {
       targetSection.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
-      })
+      });
     }
   }
-  
-  // Project filtering
-  const handleFilterClick = (category) => {
-    const projectCards = document.querySelectorAll('.project-card')
-    
+  // TODO: Add filter handler
+  // Replace: filterButtons.forEach(button => button.addEventListener('click', ...))
+  // With: const handleFilterClick = (category) => { ... }
+  function handleFilterClick(category) {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    // Update active button
+    filterButtons.forEach(button => {
+      button.classList.toggle(
+        'active',
+        button.dataset.filter === category
+      );
+    });
+
+    // Show or hide matching projects
     projectCards.forEach(card => {
-      const cardCategory = card.getAttribute('data-category')
-      
-      if (category === 'all' || cardCategory === category) {
-        card.style.display = 'block'
-        setTimeout(() => {
-          card.style.opacity = '1'
-          card.style.transform = 'scale(1)'
-        }, 10)
+      const categories = card.dataset.category.split(' ');
+
+      if (category === 'all' || categories.includes(category)) {
+        card.style.display = '';
       } else {
-        card.style.opacity = '0'
-        card.style.transform = 'scale(0.9)'
-        setTimeout(() => {
-          card.style.display = 'none'
-        }, 300)
+        card.style.display = 'none';
       }
-    })
-    
-    // Update active filter button
-    const filterButtons = document.querySelectorAll('.filter-btn')
-    filterButtons.forEach(btn => btn.classList.remove('active'))
-    event.target.classList.add('active')
+    });
   }
-  
-  // Form validation helper functions
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
+
+  // TODO: Add form validation functions
+  // You'll need: isValidEmail, showError, clearError, showSuccess
+  // These can stay mostly the same!
+  // Validate email format
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
-  
-  const showError = (input, message) => {
-    clearError(input)
-    const errorElement = document.createElement('span')
-    errorElement.className = 'error-message'
-    errorElement.textContent = message
-    input.classList.add('error')
-    input.classList.remove('success')
-    input.parentElement.appendChild(errorElement)
-  }
-  
-  const clearError = (input) => {
-    const existingError = input.parentElement.querySelector('.error-message')
-    if (existingError) {
-      existingError.remove()
-    }
-    input.classList.remove('error')
-  }
-  
-  const showSuccess = (input) => {
-    clearError(input)
-    input.classList.add('success')
-    input.classList.remove('error')
-  }
-  
-  // Real-time validation handlers
-  const handleNameChange = (e) => {
-    const value = e.target.value.trim()
-    const input = e.target
-    
-    if (value.length === 0) {
-      showError(input, 'Name is required')
-    } else if (value.length < 2) {
-      showError(input, 'Name must be at least 2 characters')
-    } else {
-      showSuccess(input)
+
+  // Display an error message
+  function showError(fieldId, message) {
+    const input = document.getElementById(fieldId);
+    const error = document.getElementById(`${fieldId}-error`);
+
+    if (input && error) {
+      input.classList.add('error');
+      error.textContent = message;
     }
   }
-  
-  const handleEmailChange = (e) => {
-    const value = e.target.value.trim()
-    const input = e.target
-    
-    if (value.length === 0) {
-      showError(input, 'Email is required')
-    } else if (!isValidEmail(value)) {
-      showError(input, 'Please enter a valid email address')
-    } else {
-      showSuccess(input)
+
+  // Clear an error message
+  function clearError(fieldId) {
+    const input = document.getElementById(fieldId);
+    const error = document.getElementById(`${fieldId}-error`);
+
+    if (input && error) {
+      input.classList.remove('error');
+      error.textContent = '';
     }
   }
-  
-  const handleMessageChange = (e) => {
-    const value = e.target.value.trim()
-    const input = e.target
-    
-    if (value.length === 0) {
-      showError(input, 'Message is required')
-    } else if (value.length < 10) {
-      showError(input, 'Message must be at least 10 characters')
-    } else {
-      showSuccess(input)
+
+  // Display a success message
+  function showSuccess(message) {
+    const success = document.getElementById('success-message');
+
+    if (success) {
+      success.textContent = message;
     }
   }
-  
-  // Form submission handler
-  const handleFormSubmit = (e) => {
-    e.preventDefault()
-    
-    const nameInput = document.querySelector('#name')
-    const emailInput = document.querySelector('#email')
-    const messageInput = document.querySelector('#message')
-    
-    let isValid = true
-    const formData = {}
-    
+  // TODO: Add form submit handler
+  // Replace: contactForm.addEventListener('submit', ...)
+  // With: const handleFormSubmit = (e) => { ... }
+  // Handle contact form submission
+  function handleFormSubmit(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+
+    const name = form.elements.namedItem('name').value.trim();
+    const email = form.elements.namedItem('email').value.trim();
+    const message = form.elements.namedItem('message').value.trim();
+
+    let isValid = true;
+
+    // Clear previous messages
+    clearError('name');
+    clearError('email');
+    clearError('message');
+
+    const successMessage = document.getElementById('success-message');
+    if (successMessage) {
+      successMessage.textContent = '';
+    }
+
     // Validate name
-    const nameValue = nameInput.value.trim()
-    if (nameValue.length < 2) {
-      showError(nameInput, 'Name must be at least 2 characters')
-      isValid = false
-    } else {
-      formData.name = nameValue
+    if (name === '') {
+      showError('name', 'Name is required');
+      isValid = false;
     }
-    
+
     // Validate email
-    const emailValue = emailInput.value.trim()
-    if (!isValidEmail(emailValue)) {
-      showError(emailInput, 'Please enter a valid email address')
-      isValid = false
-    } else {
-      formData.email = emailValue
+    if (email === '') {
+      showError('email', 'Email is required');
+      isValid = false;
+    } else if (!isValidEmail(email)) {
+      showError('email', 'Please enter a valid email address');
+      isValid = false;
     }
-    
+
     // Validate message
-    const messageValue = messageInput.value.trim()
-    if (messageValue.length < 10) {
-      showError(messageInput, 'Message must be at least 10 characters')
-      isValid = false
-    } else {
-      formData.message = messageValue
+    if (message === '') {
+      showError('message', 'Message is required');
+      isValid = false;
     }
-    
-    // If all valid, show success
+
+    // Show success message
     if (isValid) {
-      const form = e.target
-      const existingSuccess = form.querySelector('.success-message')
-      if (existingSuccess) {
-        existingSuccess.remove()
-      }
-      
-      const successMessage = document.createElement('div')
-      successMessage.className = 'success-message'
-      successMessage.textContent = 'Thank you! Your message has been sent successfully.'
-      form.appendChild(successMessage)
-      
-      console.log('Form submitted with data:', formData)
-      
-      // Clear form after 3 seconds
-      setTimeout(() => {
-        form.reset()
-        successMessage.remove()
-        document.querySelectorAll('.form-group input.success, .form-group textarea.success').forEach(input => {
-          input.classList.remove('success')
-        })
-      }, 3000)
+      showSuccess('Message submitted successfully!');
+      form.reset();
     }
   }
 
   // ============================================
-  // JSX RETURN - ENTIRE PORTFOLIO IN ONE COMPONENT
+  // PART 2: JSX RETURN STATEMENT
   // ============================================
+  // TODO: Copy your Week 6 HTML structure here
+  // Remember to convert HTML to JSX:
+  // - class → className
+  // - onclick → onClick
+  // - onsubmit → onSubmit
+  // - for → htmlFor
+  // - All event attributes use camelCase
+  //
+  // IMPORTANT: Put EVERYTHING in this one return statement!
+  // This week we're building a MONOLITHIC component (one big component)
+  // Week 8 will teach you how to break this into smaller pieces
+
   return (
     <div className="portfolio">
+
+      {/* TODO: Add your navigation here */}
+      {/* HINT: Replace <a href="#home" class="nav-link"> with <a href="#home" className="nav-link"> */}
+      {/* HINT: Replace onclick with onClick={handleNavClick} */}
       {/* Navigation Bar */}
       <nav id="navbar">
         <div className="nav-brand">
-          <span>Alex Johnson</span>
+          <span>Jingo Tu</span>
         </div>
+
         <ul className="nav-menu">
           <li><a href="#home" className="nav-link" onClick={handleNavClick}>Home</a></li>
           <li><a href="#about" className="nav-link" onClick={handleNavClick}>About</a></li>
@@ -203,50 +189,76 @@ function App() {
           <li><a href="#projects" className="nav-link" onClick={handleNavClick}>Projects</a></li>
           <li><a href="#contact" className="nav-link" onClick={handleNavClick}>Contact</a></li>
         </ul>
+
+        {/* Mobile menu toggle */}
         <div className="nav-toggle">
           <span></span>
           <span></span>
           <span></span>
         </div>
       </nav>
-
+      {/* TODO: Add your hero section here */}
       {/* Hero Section */}
       <section id="home" className="hero">
         <div className="hero-content">
-          <h1 className="hero-title">Alex Johnson</h1>
-          <p className="hero-subtitle">Frontend Developer & UI Designer</p>
-          <p className="hero-tagline">Creating beautiful, responsive web experiences with modern technologies</p>
+          <h1 className="hero-title">Jingo (Chun-Hao) Tu</h1>
+
+          <p className="hero-subtitle">
+            Bioengineering MEng Student at UC Berkeley
+          </p>
+
+          <p className="hero-tagline">
+            Exploring computational approaches to solve real-world healthcare problem
+          </p>
+
           <div className="hero-buttons">
-            <a href="#projects" className="btn btn-primary" onClick={handleNavClick}>View Projects</a>
-            <a href="#contact" className="btn btn-secondary" onClick={handleNavClick}>Get In Touch</a>
+            <a href="#projects" className="btn btn-primary">
+              View Projects
+            </a>
+
+            <a href="#contact" className="btn btn-secondary">
+              Get In Touch
+            </a>
           </div>
         </div>
       </section>
-
+      {/* TODO: Add your about section here */}
       {/* About Section */}
       <section id="about" className="section">
         <div className="container">
           <h2>About Me</h2>
+
           <div className="about-grid">
             <div className="about-text">
-              <p>I'm a passionate frontend developer with 3 years of experience creating engaging digital experiences. I specialize in React, modern CSS, and responsive design patterns that work beautifully across all devices.</p>
+              <p>
+                I'm a Bioengineering master's student at UC Berkeley with a focus on
+                computational biology and bioinformatics. My background spans
+                chemistry, wet-lab research, structural biology, and statistical genomics.
+              </p>
+
               <div className="about-details">
                 <div className="detail-item">
                   <span className="detail-icon">📍</span>
-                  <span>San Francisco, CA</span>
+                  <span>Berkeley, CA</span>
                 </div>
+
                 <div className="detail-item">
                   <span className="detail-icon">✉️</span>
-                  <a href="mailto:alex@example.com">alex@example.com</a>
+                  <a href="mailto:chun-hao_tu@berkeley.edu">
+                    chun-hao_tu@berkeley.edu
+                  </a>
                 </div>
+
                 <div className="detail-item">
                   <span className="detail-icon">📱</span>
                   <span>(555) 123-4567</span>
                 </div>
               </div>
             </div>
+
             <div className="about-availability">
               <h3>Currently Available For:</h3>
+
               <div className="availability-tags">
                 <span className="tag tag-available">Freelance</span>
                 <span className="tag tag-available">Full-Time</span>
@@ -256,108 +268,155 @@ function App() {
           </div>
         </div>
       </section>
-
+      {/* TODO: Add your skills section here */}
       {/* Skills Section */}
       <section id="skills" className="section section-alt">
         <div className="container">
           <h2>Skills & Technologies</h2>
+
           <div className="skills-grid">
+
+            {/* Python */}
             <div className="skill-card">
               <div className="skill-header">
                 <span className="skill-icon">⚛️</span>
-                <h3 className="skill-name">React</h3>
+                <h3 className="skill-name">Python</h3>
               </div>
-              <div className="skill-category">Frontend Framework</div>
+              <div className="skill-category">Programming</div>
               <div className="skill-level">
-                <div className="skill-progress" style={{width: '90%'}}></div>
+                <div className="skill-progress" style={{ '--skill-level': '90%' }}></div>
               </div>
               <span className="skill-percentage">90%</span>
             </div>
 
+            {/* R */}
             <div className="skill-card">
               <div className="skill-header">
                 <span className="skill-icon">🎨</span>
-                <h3 className="skill-name">CSS3</h3>
+                <h3 className="skill-name">R</h3>
               </div>
-              <div className="skill-category">Styling</div>
+              <div className="skill-category">Data Analysis</div>
               <div className="skill-level">
-                <div className="skill-progress" style={{width: '95%'}}></div>
+                <div className="skill-progress" style={{ '--skill-level': '95%' }}></div>
               </div>
               <span className="skill-percentage">95%</span>
             </div>
 
+            {/* Molecular Modeling */}
             <div className="skill-card">
               <div className="skill-header">
                 <span className="skill-icon">📱</span>
-                <h3 className="skill-name">Responsive Design</h3>
+                <h3 className="skill-name">Molecular Modeling</h3>
               </div>
-              <div className="skill-category">Design</div>
+              <div className="skill-category">Structural Biology</div>
               <div className="skill-level">
-                <div className="skill-progress" style={{width: '88%'}}></div>
+                <div className="skill-progress" style={{ '--skill-level': '88%' }}></div>
               </div>
               <span className="skill-percentage">88%</span>
             </div>
 
+            {/* Protein Production and Purification */}
             <div className="skill-card">
               <div className="skill-header">
                 <span className="skill-icon">🚀</span>
-                <h3 className="skill-name">JavaScript</h3>
+                <h3 className="skill-name">Protein Production and Purification</h3>
               </div>
-              <div className="skill-category">Programming</div>
+              <div className="skill-category">Wet Lab</div>
               <div className="skill-level">
-                <div className="skill-progress" style={{width: '85%'}}></div>
+                <div className="skill-progress" style={{ '--skill-level': '85%' }}></div>
               </div>
               <span className="skill-percentage">85%</span>
             </div>
 
+            {/* HTML & CSS */}
             <div className="skill-card">
               <div className="skill-header">
                 <span className="skill-icon">🎯</span>
-                <h3 className="skill-name">Figma</h3>
+                <h3 className="skill-name">HTML & CSS</h3>
               </div>
-              <div className="skill-category">Design Tools</div>
+              <div className="skill-category">Web Development</div>
               <div className="skill-level">
-                <div className="skill-progress" style={{width: '80%'}}></div>
+                <div className="skill-progress" style={{ '--skill-level': '80%' }}></div>
               </div>
               <span className="skill-percentage">80%</span>
             </div>
 
+            {/* In vitro assays */}
             <div className="skill-card">
               <div className="skill-header">
                 <span className="skill-icon">🌐</span>
-                <h3 className="skill-name">Node.js</h3>
+                <h3 className="skill-name">In vitro assays</h3>
               </div>
-              <div className="skill-category">Backend</div>
+              <div className="skill-category">Chemistry</div>
               <div className="skill-level">
-                <div className="skill-progress" style={{width: '75%'}}></div>
+                <div className="skill-progress" style={{ '--skill-level': '75%' }}></div>
               </div>
               <span className="skill-percentage">75%</span>
             </div>
+
           </div>
         </div>
       </section>
+      {/* TODO: Add your projects section here */}
+      {/* HINT: For filter buttons, use onClick={() => handleFilterClick('category')} */}
 
       {/* Projects Section */}
       <section id="projects" className="section">
         <div className="container">
           <h2>Featured Projects</h2>
 
+          {/* Filter Buttons */}
           <div className="filter-buttons">
-            <button className="filter-btn active" onClick={() => handleFilterClick('all')}>All Projects</button>
-            <button className="filter-btn" onClick={() => handleFilterClick('frontend')}>Frontend</button>
-            <button className="filter-btn" onClick={() => handleFilterClick('fullstack')}>Full-Stack</button>
-            <button className="filter-btn" onClick={() => handleFilterClick('design')}>Design</button>
-            <button className="filter-btn" onClick={() => handleFilterClick('webapp')}>Web App</button>
+            <button
+              type="button"
+              className="filter-btn active"
+              data-filter="all"
+              onClick={() => handleFilterClick('all')}
+            >
+              All Projects
+            </button>
+
+            <button
+              type="button"
+              className="filter-btn"
+              data-filter="research"
+              onClick={() => handleFilterClick('research')}
+            >
+              Research
+            </button>
+
+            <button
+              type="button"
+              className="filter-btn"
+              data-filter="healthtech"
+              onClick={() => handleFilterClick('healthtech')}
+            >
+              Health Tech
+            </button>
+
+            <button
+              type="button"
+              className="filter-btn"
+              data-filter="simulation"
+              onClick={() => handleFilterClick('simulation')}
+            >
+              Simulation
+            </button>
           </div>
 
           <div className="projects-grid">
-            <div className="project-card featured" data-category="fullstack">
+
+            {/* Project 1 */}
+            <div className="project-card featured" data-category="research">
               <div className="project-image">
-                <img src="https://via.placeholder.com/400x250/4f46e5/ffffff?text=E-Commerce+App" alt="E-Commerce Platform" />
+                <img
+                  src="https://via.placeholder.com/400x250/4f46e5/ffffff?text=E-Commerce+App"
+                  alt="E-Commerce Platform"
+                />
                 <div className="project-overlay">
                   <div className="project-links">
                     <a href="#" className="project-link">
-                      <span>🔗</span> Live Demo
+                      <span>🔗</span> Learn More
                     </a>
                     <a href="#" className="project-link">
                       <span>💻</span> Code
@@ -367,26 +426,35 @@ function App() {
               </div>
               <div className="project-content">
                 <div className="project-header">
-                  <h3 className="project-title">E-Commerce Platform</h3>
-                  <span className="project-category">Full-Stack</span>
+                  <h3 className="project-title">
+                    Serum Albumin & Cardiovascular Disease Genomic Analysis
+                  </h3>
+                  <span className="project-category">Statistical Genetics</span>
                 </div>
-                <p className="project-description">A modern e-commerce platform built with React and Node.js, featuring shopping cart, payment integration, and admin dashboard.</p>
+                <p className="project-description">
+                  A modern e-commerce platform built with React and Node.js,
+                  featuring shopping cart, payment integration, and admin dashboard.
+                </p>
                 <div className="project-tags">
-                  <span className="project-tag">React</span>
-                  <span className="project-tag">Node.js</span>
-                  <span className="project-tag">MongoDB</span>
-                  <span className="project-tag">Stripe</span>
+                  <span className="project-tag">GWAS</span>
+                  <span className="project-tag">Mendelian Randomization</span>
+                  <span className="project-tag">R</span>
+                  <span className="project-tag">Meta-Analysis</span>
                 </div>
               </div>
             </div>
 
-            <div className="project-card" data-category="frontend">
+            {/* Project 2 */}
+            <div className="project-card" data-category="research">
               <div className="project-image">
-                <img src="https://via.placeholder.com/400x250/059669/ffffff?text=Weather+App" alt="Weather Dashboard" />
+                <img
+                  src="https://via.placeholder.com/400x250/059669/ffffff?text=Weather+App"
+                  alt="Weather Dashboard"
+                />
                 <div className="project-overlay">
                   <div className="project-links">
                     <a href="#" className="project-link">
-                      <span>🔗</span> Live Demo
+                      <span>🔗</span> Learn More
                     </a>
                     <a href="#" className="project-link">
                       <span>💻</span> Code
@@ -396,25 +464,72 @@ function App() {
               </div>
               <div className="project-content">
                 <div className="project-header">
-                  <h3 className="project-title">Weather Dashboard</h3>
-                  <span className="project-category">Frontend</span>
+                  <h3 className="project-title">
+                    Protein Structural-Functional Analysis
+                  </h3>
+                  <span className="project-category">Structural Biochemistry</span>
                 </div>
-                <p className="project-description">Clean and intuitive weather dashboard with location search, 7-day forecast, and beautiful animations.</p>
+                <p className="project-description">
+                  Studying protein structure-function relationships and substrate
+                  interactions by combining experimental structural biology with
+                  computational modeling.
+                </p>
                 <div className="project-tags">
+                  <span className="project-tag">Biochemical Assays</span>
+                  <span className="project-tag">Molecular Dynamics</span>
+                  <span className="project-tag">Molecular Modeling</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Project 3 */}
+            <div className="project-card" data-category="healthtech">
+              <div className="project-image">
+                <img
+                  src="https://via.placeholder.com/400x250/dc2626/ffffff?text=Task+Manager"
+                  alt="Task Management App"
+                />
+                <div className="project-overlay">
+                  <div className="project-links">
+                    <a href="#" className="project-link">
+                      <span>🔗</span> Learn More
+                    </a>
+                    <a href="#" className="project-link">
+                      <span>💻</span> Code
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div className="project-content">
+                <div className="project-header">
+                  <h3 className="project-title">
+                    Mixed Reality Brain Sensor Positioning
+                  </h3>
+                  <span className="project-category">Health Tech</span>
+                </div>
+                <p className="project-description">
+                  Developed a mixed-reality approach to simplify brain sensor
+                  positioning, reducing setup time.
+                </p>
+                <div className="project-tags">
+                  <span className="project-tag">Mixed Reality</span>
+                  <span className="project-tag">Computer Vision</span>
                   <span className="project-tag">JavaScript</span>
-                  <span className="project-tag">CSS3</span>
-                  <span className="project-tag">API</span>
                 </div>
               </div>
             </div>
 
-            <div className="project-card" data-category="webapp">
+            {/* Project 4 */}
+            <div className="project-card" data-category="healthtech simulation">
               <div className="project-image">
-                <img src="https://via.placeholder.com/400x250/dc2626/ffffff?text=Task+Manager" alt="Task Management App" />
+                <img
+                  src="https://via.placeholder.com/400x250/7c3aed/ffffff?text=Portfolio+Site"
+                  alt="Portfolio Website"
+                />
                 <div className="project-overlay">
                   <div className="project-links">
                     <a href="#" className="project-link">
-                      <span>🔗</span> Live Demo
+                      <span>🔗</span> Learn More
                     </a>
                     <a href="#" className="project-link">
                       <span>💻</span> Code
@@ -424,110 +539,117 @@ function App() {
               </div>
               <div className="project-content">
                 <div className="project-header">
-                  <h3 className="project-title">Task Management App</h3>
-                  <span className="project-category">Web App</span>
+                  <h3 className="project-title">
+                    Virtual Lab for Personalized Microbiome Therapeutics
+                  </h3>
+                  <span className="project-category">Health Tech</span>
                 </div>
-                <p className="project-description">Productivity app with drag-and-drop functionality, project collaboration, and deadline tracking.</p>
+                <p className="project-description">
+                  Developing a computational virtual lab for exploring personalized
+                  microbiome therapeutics as part of my UC Berkeley MEng capstone.
+                </p>
                 <div className="project-tags">
-                  <span className="project-tag">React</span>
-                  <span className="project-tag">TypeScript</span>
-                  <span className="project-tag">Firebase</span>
+                  <span className="project-tag">Microbiome</span>
+                  <span className="project-tag">Agent-Based Modeling</span>
+                  <span className="project-tag">Simulation</span>
                 </div>
               </div>
             </div>
 
-            <div className="project-card" data-category="design">
-              <div className="project-image">
-                <img src="https://via.placeholder.com/400x250/7c3aed/ffffff?text=Portfolio+Site" alt="Portfolio Website" />
-                <div className="project-overlay">
-                  <div className="project-links">
-                    <a href="#" className="project-link">
-                      <span>🔗</span> Live Demo
-                    </a>
-                    <a href="#" className="project-link">
-                      <span>💻</span> Code
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <div className="project-content">
-                <div className="project-header">
-                  <h3 className="project-title">Creative Portfolio</h3>
-                  <span className="project-category">Design</span>
-                </div>
-                <p className="project-description">Responsive portfolio website for a graphic designer with interactive galleries and smooth animations.</p>
-                <div className="project-tags">
-                  <span className="project-tag">HTML5</span>
-                  <span className="project-tag">CSS3</span>
-                  <span className="project-tag">GSAP</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
+
+      {/* TODO: Add your contact form here */}
+      {/* HINT: Form will use onSubmit={handleFormSubmit} */}
+      {/* HINT: Inputs will use onChange for real-time validation */}
 
       {/* Contact Section */}
       <section id="contact" className="section section-alt">
         <div className="container">
           <h2>Get In Touch</h2>
-          <div className="contact-content">
-            <p>I'm always interested in hearing about new opportunities and projects. Feel free to reach out!</p>
 
-            <form id="contact-form" className="contact-form" onSubmit={handleFormSubmit}>
+          <div className="contact-content">
+            <p>
+              I'm always interested in hearing about new opportunities and projects.
+              Feel free to reach out!
+            </p>
+
+            <form
+              id="contact-form"
+              className="contact-form"
+              onSubmit={handleFormSubmit}
+              noValidate
+            >
               <div className="form-grid">
+
+                {/* Name */}
                 <div className="form-group">
                   <label htmlFor="name">Name *</label>
-                  <input 
-                    type="text" 
-                    id="name" 
-                    name="name" 
-                    required 
-                    onChange={handleNameChange}
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
                   />
+                  <span className="error-message" id="name-error"></span>
                 </div>
 
+                {/* Email */}
                 <div className="form-group">
                   <label htmlFor="email">Email *</label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    required 
-                    onChange={handleEmailChange}
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
                   />
+                  <span className="error-message" id="email-error"></span>
                 </div>
 
+                {/* Subject */}
                 <div className="form-group form-group-full">
                   <label htmlFor="subject">Subject</label>
-                  <input type="text" id="subject" name="subject" />
+                  <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                  />
+                  <span className="error-message" id="subject-error"></span>
                 </div>
 
+                {/* Message */}
                 <div className="form-group form-group-full">
                   <label htmlFor="message">Message *</label>
-                  <textarea 
-                    id="message" 
-                    name="message" 
-                    rows="5" 
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={5}
                     required
-                    onChange={handleMessageChange}
                   ></textarea>
+                  <span className="error-message" id="message-error"></span>
                 </div>
 
+                {/* Submit Button */}
                 <div className="form-group form-group-full">
-                  <button type="submit" className="btn btn-primary">Send Message</button>
+                  <button type="submit" className="btn btn-primary">
+                    Send Message
+                  </button>
+                  <span className="success-message" id="success-message"></span>
                 </div>
+
               </div>
             </form>
           </div>
         </div>
       </section>
-
+      {/* TODO: Add your footer here */}
       {/* Footer */}
       <footer className="footer">
         <div className="container">
           <div className="footer-content">
-            <p>&copy; 2024 Alex Johnson. All rights reserved.</p>
+            <p>&copy; 2026 Jingo Tu. All rights reserved.</p>
+
             <div className="social-links">
               <a href="#" className="social-link">GitHub</a>
               <a href="#" className="social-link">LinkedIn</a>
